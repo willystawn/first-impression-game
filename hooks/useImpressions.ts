@@ -4,8 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 
 // This app requires environment variables for Supabase credentials.
 // You must provide SUPABASE_URL and SUPABASE_ANON_KEY.
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+
 
 if (!supabaseUrl || !supabaseAnonKey) {
     // In a real app, you might show a proper error UI.
