@@ -1,19 +1,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 
-// This app requires environment variables for Supabase credentials.
-// You must provide SUPABASE_URL and SUPABASE_ANON_KEY.
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+// Initialize the Supabase client with the provided credentials.
+// This removes the dependency on environment variables which are not available in the browser.
 
-
-if (!supabaseUrl || !supabaseAnonKey) {
-    // In a real app, you might show a proper error UI.
-    // Here, we'll throw to make the configuration issue obvious during development.
-    throw new Error("Supabase credentials (SUPABASE_URL, SUPABASE_ANON_KEY) are not configured in environment variables.");
-}
-
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Define the shape of an impression object coming from the database
