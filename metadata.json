@@ -1,0 +1,5 @@
+{
+  "name": "First Impression Wall",
+  "description": "An interactive application for guests to share their first impressions. Scan a QR code to submit your thoughts and see them appear live on the main screen.",
+  "requestFramePermissions": []
+}
