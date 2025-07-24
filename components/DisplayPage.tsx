@@ -43,8 +43,8 @@ const DisplayPage: React.FC = () => {
 
                 {hasImpressions ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                        {impressions.map((text, index) => (
-                            <ImpressionCard key={`${index}-${text.slice(0, 10)}`} text={text} index={index} />
+                        {impressions.map((impression, index) => (
+                            <ImpressionCard key={impression.id} text={impression.text} index={index} />
                         ))}
                     </div>
                 ) : (
@@ -55,7 +55,7 @@ const DisplayPage: React.FC = () => {
                 )}
             </div>
              <footer className="text-center text-gray-600 mt-16 pb-4">
-                <p>Impressions are stored locally in the browser and shared between tabs.</p>
+                <p>Impressions are synced in real-time across all devices.</p>
             </footer>
         </main>
     );

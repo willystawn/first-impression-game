@@ -1,63 +1,86 @@
 
 import { useState, useEffect, useCallback } from 'react';
+import { createClient } from '@supabase/supabase-js';
 
-const STORAGE_KEY = 'first-impressions-app-data';
+// This app requires environment variables for Supabase credentials.
+// You must provide SUPABASE_URL and SUPABASE_ANON_KEY.
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const getStoredImpressions = (): string[] => {
-    try {
-        const items = window.localStorage.getItem(STORAGE_KEY);
-        if (items) {
-            const parsed = JSON.parse(items);
-            if (Array.isArray(parsed) && parsed.every(item => typeof item === 'string')) {
-                return parsed;
-            }
-        }
-    } catch (error) {
-        console.error("Error reading impressions from localStorage:", error);
-        window.localStorage.removeItem(STORAGE_KEY);
-    }
-    return [];
-};
+if (!supabaseUrl || !supabaseAnonKey) {
+    // In a real app, you might show a proper error UI.
+    // Here, we'll throw to make the configuration issue obvious during development.
+    throw new Error("Supabase credentials (SUPABASE_URL, SUPABASE_ANON_KEY) are not configured in environment variables.");
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Define the shape of an impression object coming from the database
+export interface Impression {
+    id: number;
+    text: string;
+}
 
 export const useImpressions = () => {
-    const [impressions, setImpressions] = useState<string[]>(getStoredImpressions);
+    const [impressions, setImpressions] = useState<Impression[]>([]);
 
-    useEffect(() => {
-        const handleStorageChange = (e: StorageEvent): void => {
-            if (e.key === STORAGE_KEY) {
-                setImpressions(getStoredImpressions());
-            }
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
-
-    const addImpression = useCallback((impression: string): void => {
-        if (!impression || impression.trim() === '') return;
-
-        const currentImpressions = getStoredImpressions();
-        const updatedImpressions = [...currentImpressions, impression.trim()];
-        
-        try {
-            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedImpressions));
-            // Manually update the state for the *current* tab, as 'storage' event doesn't fire on the same tab.
-            setImpressions(updatedImpressions);
-        } catch (error) {
-            console.error("Error writing impression to localStorage:", error);
+    const fetchImpressions = useCallback(async () => {
+        const { data, error } = await supabase
+            .from('impressions')
+            .select('id, text')
+            .order('created_at', { ascending: true });
+            
+        if (error) {
+            console.error("Error fetching impressions:", error.message);
+            setImpressions([]);
+        } else {
+            setImpressions(data || []);
         }
     }, []);
 
-    const clearImpressions = useCallback((): void => {
-        try {
-            window.localStorage.removeItem(STORAGE_KEY);
-            // Manually update the state for the *current* tab
-            setImpressions([]);
-        } catch (error) {
-            console.error("Error clearing localStorage:", error);
+    useEffect(() => {
+        // Initial data fetch
+        fetchImpressions();
+
+        // Listen for any changes in the 'impressions' table
+        const channel = supabase.channel('impressions-realtime')
+            .on(
+                'postgres_changes', 
+                { event: '*', schema: 'public', table: 'impressions' },
+                () => {
+                    // Refetch all data on any change. This is simpler and more robust
+                    // than trying to handle individual INSERT/UPDATE/DELETE events.
+                    fetchImpressions();
+                }
+            )
+            .subscribe();
+            
+        // Cleanup subscription on component unmount
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [fetchImpressions]);
+
+    const addImpression = useCallback(async (impression: string): Promise<void> => {
+        if (!impression || impression.trim() === '') return;
+
+        const { error } = await supabase
+            .from('impressions')
+            .insert({ text: impression.trim() });
+        
+        if (error) {
+            console.error("Error adding impression:", error.message);
+        }
+    }, []);
+
+    const clearImpressions = useCallback(async (): Promise<void> => {
+        const { error } = await supabase
+            .from('impressions')
+            .delete()
+            .gt('id', 0); // A filter is required for delete, so we delete where id > 0
+
+        if (error) {
+            console.error("Error clearing impressions:", error.message);
         }
     }, []);
 
