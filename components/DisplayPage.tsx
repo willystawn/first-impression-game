@@ -68,9 +68,11 @@ const DisplayPage: React.FC = () => {
             <BackgroundShapes />
             
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 h-screen">
-                <div className="lg:col-span-2 flex items-center justify-center p-8 h-full">
+                <div className="lg:col-span-2 flex items-center justify-center p-8 h-full overflow-hidden">
                     {hasImpressions ? (
-                        <WordCloud impressions={impressions} />
+                        <div className="relative w-full h-full">
+                            <WordCloud impressions={impressions} />
+                        </div>
                     ) : (
                         <div className="text-center text-gray-500">
                             <p className="text-2xl font-bold">Waiting for impressions...</p>

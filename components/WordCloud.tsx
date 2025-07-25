@@ -1,11 +1,12 @@
-// FILE: components/WordCloud.tsx (Alternatif Tanpa Library)
+// FILE: components/WordCloud.tsx (Gallery Layout)
 import React, { useMemo } from 'react';
 import { Impression } from '../hooks/useImpressions';
 
-const colors = [
-    'text-red-400', 'text-blue-400', 'text-green-400', 
-    'text-purple-400', 'text-yellow-300', 'text-sky-400',
-    'text-pink-400', 'text-orange-400'
+// Using background colors for the cards
+const bgColors = [
+    'bg-red-500', 'bg-blue-500', 'bg-green-500', 
+    'bg-purple-500', 'bg-yellow-500', 'bg-sky-500',
+    'bg-pink-500', 'bg-orange-500'
 ];
 
 const stringToSeed = (str: string): number => {
@@ -28,57 +29,38 @@ interface WordCloudProps {
 
 const WordCloud: React.FC<WordCloudProps> = ({ impressions }) => {
     const processedWords = useMemo(() => {
-        if (!impressions.length) return [];
-
-        const radiusConstant = 15; // Sesuaikan untuk mengatur jarak antar kata
-
         return impressions.map((impression, i) => {
             const seed = stringToSeed(impression.text + i);
-            const size = 1.5 + pseudoRandom(seed) * 3;
-
-            // Algoritma penempatan Phyllotaxis (Bunga Matahari)
-            // Ini menyebar titik dari pusat ke luar secara spiral
-            const angle = i * 137.5; // Golden angle
-            const radius = radiusConstant * Math.sqrt(i + 1);
-            
-            // Konversi dari polar (angle, radius) ke cartesian (x, y)
-            // 50% adalah pusat, jadi kita tambahkan offset
-            const x = 50 + radius * Math.cos(angle * (Math.PI / 180));
-            const y = 50 + radius * Math.sin(angle * (Math.PI / 180));
-
-            const colorClass = colors[Math.floor(pseudoRandom(seed) * colors.length)];
-            const rotation = pseudoRandom(seed + 1) < 0.2 ? 90 : 0;
+            const bgColorClass = bgColors[Math.floor(pseudoRandom(seed) * bgColors.length)];
+            // A smaller, more uniform size range for a neater gallery
+            const size = 1.1 + pseudoRandom(seed + 1) * 0.4; 
 
             return {
                 id: impression.id,
                 text: impression.text,
                 size,
-                colorClass,
-                top: `${y}%`,
-                left: `${x}%`,
-                rotation,
+                bgColorClass,
             };
         });
-
     }, [impressions]);
 
     return (
-        <div className="relative w-full h-full">
+        <div className="flex flex-wrap justify-center items-start gap-4 p-4 overflow-y-auto h-full">
             {processedWords.map((word) => (
-                <span
+                <div
                     key={word.id}
-                    className={`absolute font-bold transition-all duration-1000 ease-out fade-in-card ${word.colorClass}`}
-                    style={{
-                        fontSize: `${word.size}rem`,
-                        top: word.top,
-                        left: word.left,
-                        lineHeight: '1',
-                        transform: `translate(-50%, -50%) rotate(${word.rotation}deg)`,
-                        whiteSpace: 'nowrap',
-                    }}
+                    className={`p-4 rounded-lg shadow-xl text-white transform transition-transform duration-300 hover:scale-110 hover:shadow-2xl ${word.bgColorClass}`}
                 >
-                    {word.text}
-                </span>
+                    <span
+                        className="font-bold text-center block"
+                        style={{
+                            fontSize: `${word.size}rem`,
+                            lineHeight: '1.3',
+                        }}
+                    >
+                        {word.text}
+                    </span>
+                </div>
             ))}
         </div>
     );
