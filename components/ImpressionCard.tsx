@@ -21,28 +21,16 @@ const ImpressionCard: React.FC<ImpressionCardProps> = ({ text, index }) => {
     const gradientClass = gradientColors[index % gradientColors.length];
     const rotationClass = rotations[index % rotations.length];
 
-    // Pisahkan kembali tiga kesan berdasarkan pemisah '|'
-    const impressions = text.split('|').map(item => item.trim());
-
+    // === PERUBAHAN DI SINI ===
+    // Kartu sekarang hanya menampilkan satu kesan (text), tidak perlu di-split lagi.
     return (
         <div 
-            className={`fade-in-card p-5 shadow-xl flex flex-col justify-center text-center transform transition-all duration-300 hover:scale-110 hover:z-10 rounded-lg bg-gradient-to-br text-gray-900 ${gradientClass} ${rotationClass}`}
-            style={{ minHeight: '12rem' }} // Beri tinggi minimum
+            className={`fade-in-card p-5 shadow-xl flex flex-col justify-center items-center text-center transform transition-all duration-300 hover:scale-110 hover:z-10 rounded-lg bg-gradient-to-br text-gray-900 ${gradientClass} ${rotationClass}`}
+            style={{ minHeight: '8rem' }} // Sedikit mengurangi tinggi minimum agar lebih pas
         >
-            {impressions.map((impression, i) => (
-                <p 
-                    key={i}
-                    // Beri gaya berbeda untuk setiap baris agar lebih dinamis
-                    className={`
-                        break-words font-bold
-                        ${i === 0 ? 'text-2xl mb-2' : ''}
-                        ${i === 1 ? 'text-lg opacity-90' : ''}
-                        ${i === 2 ? 'text-base opacity-80 italic' : ''}
-                    `}
-                >
-                    {impression}
-                </p>
-            ))}
+            <p className="break-words text-white font-bold text-2xl">
+                {text}
+            </p>
         </div>
     );
 };

@@ -44,15 +44,17 @@ export const useImpressions = () => {
         };
     }, [fetchImpressions]);
 
-    // Diubah untuk menerima array dari string
+    // === PERUBAHAN DI SINI ===
+    // Mengembalikan fungsi untuk menerima array string dan memasukkannya sebagai baris terpisah
     const addImpressions = useCallback(async (impressionTexts: string[]): Promise<void> => {
         const impressionsToInsert = impressionTexts
             .map(text => text.trim())
             .filter(text => text.length > 0)
-            .map(text => ({ text }));
+            .map(text => ({ text })); // Membuat object untuk setiap kesan
 
         if (impressionsToInsert.length === 0) return;
 
+        // Memasukkan array object ke supabase, yang akan menjadi beberapa baris
         const { error } = await supabase
             .from('impressions')
             .insert(impressionsToInsert);
@@ -73,6 +75,6 @@ export const useImpressions = () => {
         }
     }, []);
 
-    // Ganti nama addImpression menjadi addImpressions untuk konsistensi
+    // Ekspor addImpressions (plural)
     return { impressions, addImpressions, clearImpressions };
 };

@@ -11,6 +11,8 @@ const CheckCircleIcon: React.FC = () => (
 const SubmitPage: React.FC = () => {
     const [inputs, setInputs] = useState(['', '', '']);
     const [submitted, setSubmitted] = useState(false);
+    // === PERUBAHAN DI SINI ===
+    // Menggunakan addImpressions (plural) yang menerima array
     const { addImpressions } = useImpressions();
 
     const handleInputChange = (index: number, value: string) => {
@@ -27,9 +29,11 @@ const SubmitPage: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent): void => {
         e.preventDefault();
+        // === PERUBAHAN DI SINI ===
+        // Mengirim input sebagai array string, bukan string gabungan.
         const validInputs = inputs.map(i => i.trim()).filter(Boolean);
         if (validInputs.length > 0) {
-            addImpressions(validInputs);
+            addImpressions(validInputs); // Mengirim array ke hook
             setInputs(['', '', '']);
             setSubmitted(true);
         }
@@ -63,11 +67,9 @@ const SubmitPage: React.FC = () => {
                                 id={`impression-${index}`}
                                 value={value}
                                 onChange={(e) => handleInputChange(index, e.target.value)}
-                                placeholder="Contoh: Orangnya baik, ramah, dan suka menolong"
+                                placeholder="Contoh: Orangnya baik"
                                 maxLength={40}
-                                // === PERUBAHAN DI SINI ===
                                 autoComplete="off" 
-                                // ==========================
                                 className="w-full p-3 bg-gray-800 border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-500 transition duration-200"
                             />
                         </div>
