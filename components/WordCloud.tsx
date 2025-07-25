@@ -22,27 +22,19 @@ const pseudoRandom = (seed: number): number => {
     return x - Math.floor(x);
 };
 
+interface WordCloudProps {
+    impressions: Impression[];
+}
+
 const WordCloud: React.FC<WordCloudProps> = ({ impressions }) => {
     const processedWords = useMemo(() => {
         if (!impressions.length) return [];
 
-        const counts = new Map<string, number>();
-        impressions.forEach(imp => {
-            const text = imp.text.toLowerCase().trim();
-            if (text) {
-                counts.set(text, (counts.get(text) || 0) + 1);
-            }
-        });
-
-        const words = Array.from(counts.entries());
-        const numWords = words.length;
         const radiusConstant = 15; // Sesuaikan untuk mengatur jarak antar kata
 
-        return words.map(([text, count], i) => {
-            const seed = stringToSeed(text);
-            const maxCount = Math.max(1, ...Array.from(counts.values()));
-            const sizeScale = 1 + (count - 1) / (maxCount);
-            const size = Math.min(1.5 + (3 * sizeScale), 10);
+        return impressions.map((impression, i) => {
+            const seed = stringToSeed(impression.text + i);
+            const size = 1.5 + pseudoRandom(seed) * 3;
 
             // Algoritma penempatan Phyllotaxis (Bunga Matahari)
             // Ini menyebar titik dari pusat ke luar secara spiral
@@ -58,7 +50,8 @@ const WordCloud: React.FC<WordCloudProps> = ({ impressions }) => {
             const rotation = pseudoRandom(seed + 1) < 0.2 ? 90 : 0;
 
             return {
-                text,
+                id: impression.id,
+                text: impression.text,
                 size,
                 colorClass,
                 top: `${y}%`,
@@ -73,7 +66,7 @@ const WordCloud: React.FC<WordCloudProps> = ({ impressions }) => {
         <div className="relative w-full h-full">
             {processedWords.map((word) => (
                 <span
-                    key={word.text}
+                    key={word.id}
                     className={`absolute font-bold transition-all duration-1000 ease-out fade-in-card ${word.colorClass}`}
                     style={{
                         fontSize: `${word.size}rem`,
