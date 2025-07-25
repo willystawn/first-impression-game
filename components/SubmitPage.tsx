@@ -16,8 +16,8 @@ const SubmitPage: React.FC = () => {
     const handleInputChange = (index: number, value: string) => {
         const words = value.trim().split(/\s+/);
         let validatedValue = value;
-        if (words.length > 2) {
-            validatedValue = words.slice(0, 2).join(' ');
+        if (words.length > 5) {
+            validatedValue = words.slice(0, 5).join(' ');
         }
         
         const newInputs = [...inputs];
@@ -51,7 +51,7 @@ const SubmitPage: React.FC = () => {
         <div className="flex items-center justify-center min-h-screen p-4">
             <div className="w-full max-w-md">
                 <h1 className="text-4xl font-bold text-center mb-2 text-white">First Impression</h1>
-                <p className="text-center text-gray-400 mb-8">Tuliskan hingga 3 kesan pertamamu (maks. 2 kata per kesan).</p>
+                <p className="text-center text-gray-400 mb-8">Tuliskan hingga 3 kesan pertamamu (maks. 5 kata per kesan).</p>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {inputs.map((value, index) => (
                         <div key={index}>
@@ -63,7 +63,7 @@ const SubmitPage: React.FC = () => {
                                 id={`impression-${index}`}
                                 value={value}
                                 onChange={(e) => handleInputChange(index, e.target.value)}
-                                placeholder="Contoh: Sangat Keren"
+                                placeholder="Contoh: Orangnya baik, ramah, dan suka menolong"
                                 maxLength={40}
                                 // === PERUBAHAN DI SINI ===
                                 autoComplete="off" 
